@@ -1,0 +1,1 @@
+# Grid Protocol - Architecture
