@@ -51,7 +51,7 @@ When exchanging data between implementations, if there is a possiblity to specif
 >
 >  Promote `HTTP/2` now that it is a stable RFC to promote acceptance.
 >
->  `HTTP/3` is too young and might burden implementations too much at this stage of the protocol if used as the default transport. Implementations are still encouraged to try and report on it in the *Exchanges* section's intro paragraph.
+>  `HTTP/3` is not a mature specification yet, and might burden implementations too much at this stage of the protocol if used as the default transport. However, once the specification matures to the point of being acceptable for wider use, implementations are encouraged to utilize it as the default transport, as soon as possible, with fallback to `HTTP/2` and `HTTP/1.1` as necessary.
 >
 >  `HTTP/3`, `HTTP/2` and `HTTP/1.1` - in this order - allow for fallback, making it seamless to users. The fallback is normally largely adopted in libraries and SDKs, also making it seamless for developers.
 
