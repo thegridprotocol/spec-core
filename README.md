@@ -12,6 +12,73 @@ The following RFCs are prerequisites to this document:
 
 Persistent data is exchanged over a fundamental structure called `channel`.
 
+### Event Ordering
+
+In the context of a channel, two types of ordering are defined:
+
+- `DAG order`
+- `Timeline order`
+
+In both case, ordering is always based on the relationships between events which give a *happen-before* guarantee. any time-based key like `timestamp` **MUST NOT** be trusted for any kind of ordering used in state computation/resolution or performing any kind of authoritative action/computation.
+
+Time-based keys are only informational, and **MAY** be used for user experience/presentation purposes.
+
+#### DAG order
+
+DAG order is always a relative ordering of a subset of a channel. The subset is between an event and its recursive parents, optionally scoped to depth `N`. This ordering doesn't include any side branch of the DAG.
+
+It is formally defined as such for an event `O` located anywhere in the DAG, to collect `0` parents recursively, called individually `P` , then stop processing across all branches if `P` depth is equal or lower than `N`, or `P` has no parents. Once all events are collected, order using the following:
+
+- By descending `depth` value
+- If the same, by the presence of a non-null `scope` key, with order  `withKey, withoutKey`
+- If the same, by ascending lexical order of the `id` value which must be unique per channel
+
+The ordering is naturally in going backward.
+
+> **TODO**: Define
+>
+> - `parent`
+> - `recursive parent`
+> - `backward`
+> - `forward`
+
+#### Timeline order
+
+Across all branches, Is ascending order. Is the "human" view.
+
+> **TODO**: Document the exact algorithm in details.
+
+#### Ordering Examples
+
+Given the following example structure:
+
+```
+         A       |  (Depth = 1337)
+         |       |
+         B       |
+      /  |  \    |
+     C   D   E   F
+       \ |  /    |
+         G       H
+         |       |
+```
+
+Knowing that:
+
+- The `depth` of `A` is `1337`
+- `A` ID is `$a` and has no `scope` key
+- `B` ID is `$b` and has no `scope` key
+- `C` ID is `$c` and has no `scope` key
+- `D` ID is `$d` and has a `scope` of value `@b`
+- `E` ID is `$e` and has no `scope` key
+- `F` ID is `$f` and has a `scope` of value `@a`. `F` has parent(s) with a `depth` lower than `1337`
+- `G` ID is `$g` and has no `scope` key
+- `H` ID is `$h` and has no `scope` key
+
+The DAG order from `G` with limit of `1337` for `N` would be: `G, D, E, C, B, A`.
+
+The Timeline order from `A` with limit of `1340` for `N` would be: `A, B, F, D, C, E, G, H`.
+
 ## Exchanges
 
 The protocol aims to promote the most recent technologies that are stable enough or will be stable enough, while not putting an unreasonable burden on developers to build software based on the protocol.
