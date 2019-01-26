@@ -8,6 +8,10 @@ The following RFCs are prerequisites to this document:
 
 ## Concepts
 
+### Events
+
+> Format follows Matrix for now, except for `auth_events` not being kept and `state_key` being renamed to `scope`
+
 ### Channels
 
 Persistent data is exchanged over a fundamental structure called `channel`.
@@ -160,7 +164,7 @@ Except for the `sigil` defining the ID type, characters **MUST** be from the [Ba
 
 > **Rationale**:
 >
-> Without padding*: keep IDs as small as possible, as they will repeat in each event.*
+> *Without padding*: keep IDs as small as possible, as they will repeat in each event.
 >
 > *Base64 encoding*:
 >
@@ -184,7 +188,7 @@ To bootstrap the ecosystem, IDs **MUST**be built like this:
 
 1. Pick an arbitrary unique identifier for the object, unique within the configured realm.
 2. Append `@`
-3. Append the domain
+3. Append the Grid realm
 4. Encode as Base64 URL-safe no-padding
 5. Add ID `sigil`
 
@@ -226,11 +230,12 @@ Sigil: `$`
 
 ### Addresses
 
-An `address` is defined as a compound string made of three elements, in order:
+An `address` is defined as a compound string made of four elements, in order:
 
 - A `sigil` to define the type of `address`
+- A human-friendly identifier/name, unique within the realm it was created
 - The character `@` 
-- A server address
+- A Grid realm
 
 #### Users
 
