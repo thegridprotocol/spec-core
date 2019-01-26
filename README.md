@@ -27,7 +27,7 @@ Time-based keys are only informational, and **MAY** be used for user experience/
 
 DAG order is always a relative ordering of a subset of a channel. The subset is between an event and its recursive parents, optionally scoped to depth `N`. This ordering doesn't include any side branch of the DAG.
 
-It is formally defined as such for an event `O` located anywhere in the DAG, to collect `0` parents recursively, called individually `P` , then stop processing across all branches if `P` depth is equal or lower than `N`, or `P` has no parents. Once all events are collected, order using the following:
+It is formally defined as such for an event `O` located anywhere in the DAG, to collect `O` parents recursively, called individually `P` , then stop processing across all branches if `P` depth is equal or lower than `N`, or `P` has no parents. Once all events are collected, order using the following:
 
 - By descending `depth` value
 - If the same, by the presence of a non-null `scope` key, with order  `withKey, withoutKey`
