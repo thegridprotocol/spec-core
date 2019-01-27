@@ -6,6 +6,8 @@ The following RFCs are prerequisites to this document:
 - [2606](https://tools.ietf.org/html/rfc2606) - *Reserved Top Level DNS Names*
 - [8174](https://tools.ietf.org/html/rfc8174) - *Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words*
 
+**NOTE**: While in WIP, this document is to be considered a diff of the Matrix r0 spec which this project forked. Anything not documented is to be taken from the Matrix specs with only naming adaptation.
+
 ## Concepts
 
 ### Events
