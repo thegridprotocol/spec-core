@@ -16,7 +16,7 @@ This document describes the API that can be used for data exchanges between two 
 
 ## Baseline
 
-All the endpoints **MUST** be prefixed with `/_grid/data/server`.
+All the endpoints below **MUST** be prefixed with `/data/server`.
 
 ### Authorization
 
@@ -37,10 +37,10 @@ With format:
     "v": "0",
     "g.data": [
         {
-            "base_url": "https://example.org" # Top domain style
+            "base_url": "https://example.org/_grid" # Top domain style
         }
         {
-            "base_url": "https://grid.example.org/data" # Sub domain style
+            "base_url": "https://grid.example.org" # Sub domain style
         }
     ]
 }
@@ -59,6 +59,36 @@ Custom keys must use Java package naming convention
 | `base_url` | Mandatory. Base URL to the API without trailing `/` |
 
 Servers need to try to use them in order until one server reply. Caching of data is controlled via regular HTTP headers, but should not be cached between server restarts.
+
+## Status
+
+### `GET /version`
+
+Get the version info about a server. This endpoint is also consider the "ping" endpoint and servers **MUST** only use this one to check if a remote server is alive. This endpoint **MUST** not be cached by infrastructure components.
+
+> Rationale: give a clear endpoint to can be used to know if a server is alive which can be hard-coded in implementation. The main planned usage of this endpoint outside of version checking would be checking the availability of a server before accepting a join, regardless of cached signed keys. At this point we are not sure if it will make a real difference, so we will try during beta and see.
+
+#### Response
+
+##### Success
+
+**Status:** 200
+
+**Body:**
+
+```json
+{
+  "api": [
+    "v0"
+  ],
+  "server": {
+      "name": "SomeServerImplementation"
+      "version": "v1.33.7"
+  }
+}
+```
+
+
 
 ## Synchronization
 
