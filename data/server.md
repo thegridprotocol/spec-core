@@ -88,9 +88,68 @@ Get the version info about a server. This endpoint is also consider the "ping" e
 }
 ```
 
+**Root object**
+
+| Key      | Type     | Required | Purpose                                       |
+| -------- | -------- | -------- | --------------------------------------------- |
+| `api`    | array    | **Yes**  | List of supported API versions by the server. |
+| `server` | `Server` | No       | Implementation details.                       |
+
+**`Server` object**
+| Key       | Type   | Required | Purpose                        |
+| --------- | ------ | -------- | ------------------------------ |
+| `name`    | string | **Yes**  | Name of the implementation.    |
+| `version` | string | No       | Version of the implementation. |
 
 
-## Synchronization
+
+## Data access
+
+The following endpoints allow fundamental data access to the fundamental structure of the protocol.
+
+### `GET /v0/channels/{channelId}/events/{eventId}`
+
+Get a specific event from a channel.
+
+#### Request
+
+Path variables:
+
+| Name        | Required | Purpose                                           |
+| ----------- | -------- | ------------------------------------------------- |
+| `channelId` | **Yes**  | The channel ID in which to find locate the event. |
+| `eventId`   | **Yes**  | The event ID of the event.                        |
+
+#### Response
+
+##### Success
+
+**Status:** 200
+**Body:**
+
+```json
+{
+    "event": {
+        "Some": "Channel event"
+    }
+}
+```
+
+| Key             | Type                    | Required | Purpose                                                                              |
+| --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `event`    | Channel Event           | **Yes**  | The requested channel event.                    |
+
+
+##### Failure
+
+The following failures are possible:
+
+| Status | Code          | Description                                                  |
+| ------ | ------------- | ------------------------------------------------------------ |
+| `403`  | `G_FORBIDDEN` | The requesting server is not allowed to see the event. |
+| `404`  | `G_NOT_FOUND` | The channel or the event are not known to the server. |
+
+## Synchronisation
 
 ### `POST /v0/do/push`
 
@@ -146,29 +205,34 @@ Used by a server on another to download any pending push that might have not be 
 
 > **TODO**: Complete with request/response. This would be a mirror of `/push`.
 
+
+
 ## Approvals
 
-Certain actions require that the server being the target, or being authoritative for a user that it is hosting, approves it.
+Certain actions require approval from the server being the target - or representing a user - of an event, or involved in a process, like joining a public room without prior interaction.
 
-The following event types require approval:
+The approval process allows a first layer of control and validation on both ends, and is especially designed to fight spam or unwanted solicitations.
 
-- `g.c.member` if the key `content.action` has a value of `invite`
+Approvals are created by having the targeted servers counter-sign an event after evaluating the event itself and the context surrounding the event.
 
 ### `POST /v0/do/approve/invite`
 
-Approve an invite event.
+Approve an invite event. More formally, This endpoint is called on Server B by Server A when attempting to invite User C from Server B.
+
+The qualifying event is of type `g.c.s.member` when the key `content.action` has the value `invite`.
 
 #### Request
 
+Example body:
 ```json
 {
-    "object": {
+    "event": {
         "v": "0",
         "origin": ":originServer",
         "channel": "#chanID",
         "sender": "@senderID",
         "scope": "@inviteeID",
-        "type": "g.c.member",
+        "type": "g.c.s.member",
         "content": {
             "action": "invite"
         },
@@ -191,8 +255,8 @@ Approve an invite event.
 
 | Key             | Type                    | Required | Purpose                                                                              |
 | --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
-| `object`        | Channel Event           | **Yes**  | The event to be signed by the server.                                                |
-| `context.state` | Array of Channel Events | **Yes**  | The state of the channel at the time the invite was requested. This cannot be empty. |
+| `event`        | Channel Event           | **Yes**  | The event to be signed by the server.                                                |
+| `context.state` | Array of Channel Events | **Yes**  | The state of the channel at the time the invite was requested. This **MUST NOT** be empty. |
 
 #### Response
 
@@ -203,7 +267,7 @@ Approve an invite event.
 
 ```json
 {
-    "data": {
+    "event": {
         "v": "0",
         "origin": ":originServer",
         "channel": "#chanID",
@@ -221,11 +285,142 @@ Approve an invite event.
 }
 ```
 
+| Key             | Type                    | Required | Purpose                                                                              |
+| --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `event`    | Channel Event           | **Yes**  | The event approved and counter-signed by the server.                    |
+
 ##### Failure
 
 The following failures are possible:
 
 | Status | Code        | Description                                                                                                                           |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `403`  | `G_REFUSED` | The server refuses to counter-sign the event. The server **SHOULD** give a meaningful error message so it can be relayed to the user. |
+| `403`  | `G_REFUSED` | The server refuses to counter-sign the event. The server **SHOULD** give a meaningful error message so it can be relayed to the client/user. |
 
+### `POST /v0/do/approve/join`
+
+Approve a join event. More formally, This endpoint is called on Server B by Server A when a user from Server A wants to join a public room without prior invitation.
+
+The qualifying event is of type `g.c.s.member` when the key `content.action` has the value `join`, when the state has an event `g.c.s.joining` when the key `content.rule` has the value `public`.
+
+#### Request
+
+Example body:
+```json
+{
+    "event": {
+        "v": "0",
+        "origin": ":originServer",
+        "channel": "#chanID",
+        "sender": "@senderID",
+        "scope": "@senderID",
+        "type": "g.c.s.member",
+        "content": {
+            "action": "join"
+        },
+        "signatures": {
+            ":originServer": "SomeBase64Here"
+        }
+    }
+}
+```
+
+| Key             | Type                    | Required | Purpose                                                                              |
+| --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `event`        | Channel Event           | **Yes**  | The event to be approved by the server.                                     |
+
+#### Response
+
+##### Success
+
+**Status:** `200`
+**Body:**
+
+```json
+{
+    "event": {
+        "v": "0",
+        "origin": ":originServer",
+        "channel": "#chanID",
+        "sender": "@senderID",
+        "scope": "@inviteeID",
+        "type": "g.c.s.member",
+        "content": {
+            "action": "join"
+        },
+        "signatures": {
+            ":originServer": "SomeBase64Here",
+            ":remoteServer": "SomeOtherBase64Here"
+        }
+    },
+    "context": {
+        "state": [
+            {
+                "A first": "state event"
+            },
+            {
+                "A second": "state event"
+            }
+        ]
+    }
+}
+```
+
+| Key             | Type                    | Required | Purpose                                                                              |
+| --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `data`        | Channel Event           | **Yes**  | The event to be signed by the server.                                                |
+| `context.state` | Array of Channel Events | **Yes**  | The state of the channel at the time the join was approved. This **MUST NOT** be empty. |
+
+##### Failure
+
+The following failures are possible:
+
+| Status | Code        | Description                                                                                                                           |
+| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `403`  | `G_REFUSED` | The server refuses to counter-sign the event. The server **SHOULD** give a meaningful error message so it can be relayed to the client/user. |
+
+## Lookups
+
+### `POST /v0/do/lookup/channel/alias`
+
+Get the Channel ID and resident data server(s) for the channel.
+
+#### Request
+
+**Body**:
+
+```json
+{
+    "alias": "#channelAlias"
+}
+```
+| Key             | Type                    | Required | Purpose                                                                              |
+| --------------- | ----------------------- | -------- | ------------------------------------------------------------------------------------ |
+| `alias`    | string           | **Yes**  | The Channel Alias being looked up.                    |
+
+#### Response
+
+##### Success
+
+**Status:** 200
+**Body:**
+
+```json
+{
+    "id": "#channelID",
+    "servers": [
+        ":serverID-A",
+        ":serverID-B"
+    ]
+}
+```
+
+> **TODO:** This endpoint does not include any way to resolve Server IDs to routable addresses. While the current spec has the routing info builtin the ID, this will only be true for v0. We need to adapt this endpoint by then.
+
+##### Failure
+
+The following failures are possible:
+
+| Status | Code          | Description                                                  |
+| ------ | ------------- | ------------------------------------------------------------ |
+| `404`  | `G_NOT_FOUND` | The channel alias is unknown to the server. The server **SHOULD** use this status code to reply to blacklisted/ban servers, instead of a `403` to ensure blacklists/bans are not leaked. |
