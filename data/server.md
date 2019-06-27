@@ -96,6 +96,7 @@ Get the version info about a server. This endpoint is also consider the "ping" e
 | `server` | `Server` | No       | Implementation details.                       |
 
 **`Server` object**
+
 | Key       | Type   | Required | Purpose                        |
 | --------- | ------ | -------- | ------------------------------ |
 | `name`    | string | **Yes**  | Name of the implementation.    |
