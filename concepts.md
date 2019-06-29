@@ -25,7 +25,7 @@ In the context of a channel, two types of ordering are defined:
 - `DAG order`
 - `Timeline order`
 
-In both case, ordering is always based on the relationships between events which give a *happen-before* guarantee. any time-based key like `timestamp` **MUST NOT** be trusted for any kind of ordering used in state computation/resolution or performing any kind of authoritative action/computation.
+In both case, ordering is always based on the relationships between events which give a *happen-before* guarantee. Any time-based key like `timestamp` **MUST NOT** be trusted for any kind of ordering used in state computation/resolution or performing any kind of authoritative action/computation.
 
 Time-based keys are only informational, and **MAY** be used for user experience/presentation purposes.
 
