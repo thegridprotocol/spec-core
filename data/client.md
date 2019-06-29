@@ -346,12 +346,12 @@ Body:
 
 ### `PUT /v0/channels/{channelIdOrAddress}/do/subscribe`
 
-### `PUT /v0/channels/{channelIdOrAddress}/do/unsubscribe`
+> **NOTE:** Unsubscribing is done using `/leave`.
 
 ### `PUT /v0/channels/{channelIdOrAddress}/do/leave`
 
-### `PUT /v0/channels/{channelIdOrAddress}/do/kick`
+> **NOTE:** Can also be used for kicks, as kick is performing `leave` on another user.
 
 ### `PUT /v0/channels/{channelIdOrAddress}/do/ban`
 
-### `PUT /v0/channels/{channelIdOrAddress}/do/unban`
+> **NOTE:** Unban is done using `/leave`.
