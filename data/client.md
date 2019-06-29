@@ -31,7 +31,7 @@ Clients and servers can adapt several requirement levels for exchange of such cr
 - **SHINIES**: Using a valid token is encouraged as it can result in more complete information.
   - Clients **SHOULD** send credentials.
   - Servers **MUST** accept endpoint usage with or without credentials. Servers **SHOULD** enhance the request as much as possible if the client is identified and **SHOULD** redact as much info as possible if credentials are not available.
-- **BAD DOG** ~~Wolf~~: Clients **MUST NOT **send credentials. Servers **MUST** fast-fail the request if credentials are provided.
+- **BAD DOG** ~~Wolf~~: Clients **MUST NOT** send credentials. Servers **MUST** fast-fail the request if credentials are provided.
 
 > **TODO**: be clear of the distinction between "credentials (not) available", "client authenticated", "client authorized", etc.
 
