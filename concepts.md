@@ -20,15 +20,43 @@ The following RFCs are prerequisites to this document:
 
 ## Concepts
 
+### Fundamental
+
+The Grid protocol specifies *roles* that implementations can take and APIs linked to those roles. The current defined roles are:
+
+- Client: Interacting with users (human or not) and acting as a gateway to the server functions.
+- Server: Interacting with other servers, acting as a network node to achieve the decentralised approach of The Grid.
+
+An implementation can be either or both. This specification makes no assumption on implementations implementing the role(s) in a particular way.
+
+The Grid protocol takes no position on how decentralisation is achieved. [Peer-to-Peer](https://en.wikipedia.org/wiki/Peer-to-peer) and [Federation](https://en.wikipedia.org/wiki/Federation_(information_technology)) are typical ways, the first having one implementation being both client and server while the second separates the two roles into their dedicated implementations.
+
+Implementations are free to take on whichever approach they feel is appropriate for their needs. This specification will attempt to not artificially restrict possible use cases and remain as open as possible. Developers are encouraged to report any artificial restrictions they encounter so the protocol technical board can discuss if such restriction should be taken care of or not.
+
+### Realm
+
+A `realm` is the value under which [Identifiers](#identifiers) are namespaced. A `realm` is considered an opaque string unless specified otherwise.
+
 ### Events
 
-> Format follows Matrix for now, except for `auth_events` not being kept and `state_key` being renamed to `scope`
+Events are fundamental unit of data exchanged between servers over [Channels](#channels).
 
-### Channels
+#### Types
 
-Persistent data is exchanged over a fundamental structure called `channel`.
+There are four fundamental types of events:
 
-### Event Ordering
+| Type                              | Has an ID? | Has Parent Events? |
+| --------------------------------- | ---------- | ------------------ |
+| Persistent Linked Event (`PLE`)   | Yes        | Yes                |
+| Persistent Unlinked Event (`PUE`) | Yes        | No                 |
+| Ephemeral Linked Event (`ELE`)    | No         | Yes                |
+| Ephemeral Unlinked Event (`EUE`)  | No         | No                 |
+
+> **TODO**: Link to specific usages of those types in the spec, once the various sections are complete enough.
+>
+> **NOTE:** Format follows Matrix for now, except for `auth_events` not being kept and `state_key` being renamed to `scope`
+
+#### Ordering
 
 In the context of a channel, two types of ordering are defined:
 
@@ -39,7 +67,7 @@ In both case, ordering is always based on the relationships between events which
 
 Time-based keys are only informational, and **MAY** be used for user experience/presentation purposes.
 
-#### DAG order
+##### DAG order
 
 DAG order is always a relative ordering of a subset of a channel. The subset is between an event and its recursive parents, optionally scoped to depth `N`. This ordering doesn't include any side branch of the DAG.
 
@@ -58,13 +86,13 @@ The ordering is naturally in going backward.
 > - `backward`
 > - `forward`
 
-#### Timeline order
+##### Timeline order
 
 Across all branches, Is ascending order. Is the "human" view.
 
 > **TODO**: Document the exact algorithm in details.
 
-#### Ordering Examples
+##### Examples
 
 Given the following example structure:
 
@@ -94,6 +122,10 @@ Knowing that:
 The DAG order from `G` with limit of `1337` for `N` would be: `G, D, E, C, B, A`.
 
 The Timeline order from `A` with limit of `1340` for `N` would be: `A, B, F, D, C, E, G, H`.
+
+### Channels
+
+[Events](#events) are exchanged over a fundamental structure called `channel`. Channels are uniquely identified with a unique ID. Channels **MAY** be referenced by one to many aliases. A channel **MAY** not have aliases.
 
 ## Exchanges
 
@@ -155,22 +187,22 @@ Implementations **SHOULD** support [TLS 1.3](https://en.wikipedia.org/wiki/Trans
 
 Identifiers will be split into two categories:
 
-- `ID`: Opaque low-level Identifier used by implementations to uniquely identify and route data.
-- `Address`: High-level Identifier to be created and used by users.
+- `ID`: Opaque low-level Identifier used by implementations to uniquely identify and optionally route data.
+- `Alias`: High-level Identifier to be created and used by users.
 
 ### IDs
 
-An `ID` is defined as a compound string made of a single character in first position, called `sigil` followed by a globally unique network identifier.
+An `ID` is defined as a compound string made of a single character in first position, called `sigil` followed by a globally unique network identifier. The generation algorithms are specific to each `ID` type.
 
-An `ID` **MUST** be treated as an opaque, case-sensitive string and used as-is.
+An `ID` **MUST** be treated as an opaque, case-sensitive string and used as-is unless a specific mechanism requires it to be interpreted. An `ID` is considered NOT human/users friendly and not to be used by them. They are to be used directly by software. Implementations of the protocol **SHOULD NOT** promote their usage by users outside of issue reporting, troubleshooting or advanced operations.
 
-> **Open Question**: *Opaque* is not defined in a technical manner, and may be unclear and/or missleading.
+> **Open Question**: *Opaque* is not defined in a technical manner, and may be unclear and/or misleading.
 > **Is there a better word that states that implementations must not try to make sense of it, unless specifically stated in this doc?**
 
 
-> **Rationale**: an `ID` is a low-level identifier and is therefore not meant to be used by humans/users directly. Given the privacy goal of the protocol, it is also important to split the concepts of `ID` not inherently tied to an identifiable information and `Address` which is specifically created by a user/system so an entity can specifically be identified.
+> **Rationale**: an `ID` is a low-level identifier and is therefore not meant to be used by humans/users directly. Given the privacy goal of the protocol, it is also important to split the concepts of `ID` not inherently tied to an identifiable information and `alias` which is specifically created by a user/system so an entity can specifically be identified.
 >
-> Making an `ID` opaque and case-sensitive allows for them to be treated as bytes without putting any kind of restriction for the future, while their companion Identifier, `Addresses` deal with user-specific needs.
+> Making an `ID` opaque and case-sensitive allows for them to be treated as bytes without putting any kind of restriction for the future, while their companion Identifier, `aliases` deal with user-specific needs.
 
 Except for the `sigil` defining the ID type, characters **MUST** be from the [Base64](https://tools.ietf.org/html/rfc4648) encoding without padding and use the [URL-safe variant](https://tools.ietf.org/html/rfc4648#section-5).
 
@@ -196,7 +228,7 @@ Example:
 
 #### Ecosystem bootstrap
 
-To bootstrap the ecosystem, IDs **MUST**be built like this:
+To bootstrap the ecosystem, IDs **MUST** be built like this:
 
 1. Pick an arbitrary unique identifier for the object, unique within the configured realm.
 2. Append `@`
@@ -240,14 +272,14 @@ Sigil: `#`
 
 Sigil: `$`
 
-### Addresses
+### Aliases
 
-An `address` is defined as a compound string made of four elements, in order:
+An `alias` is defined as a compound string made of four elements, in order:
 
-- A `sigil` to define the type of `address`
-- A human-friendly identifier/name, unique within the realm it was created
+- A `sigil` to define the type of `alias`
+- A human-friendly identifier/name, unique within the [realm](#realm) it was created
 - The character `@` 
-- A Grid realm
+- A Grid [realm](#realm)
 
 #### Users
 
