@@ -6,7 +6,17 @@ The following RFCs are prerequisites to this document:
 - [2606](https://tools.ietf.org/html/rfc2606) - *Reserved Top Level DNS Names*
 - [8174](https://tools.ietf.org/html/rfc8174) - *Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words*
 
-**NOTE**: While in WIP, this document is to be considered a diff of the Matrix r0 spec which this project forked. Anything not documented is to be taken from the Matrix specs with only naming adaptation.
+>  **NOTE**: This document is to be considered a diff of the Matrix 1.0 spec which this project forked. Anything not documented is to be taken from the Matrix specs with only naming adaptation.
+>
+> The following versions of the APIs are used:
+>
+> | **API**             | **Version**                                                  |
+> | ------------------- | ------------------------------------------------------------ |
+> | Client-Server       | [r0.5.0](https://matrix.org/docs/spec/client_server/r0.5.0)  |
+> | Server-Server       | [r0.1.2](https://matrix.org/docs/spec/server_server/r0.1.2)  |
+> | Application Service | [r0.1.1](https://matrix.org/docs/spec/application_service/r0.1.1) |
+> | Identity Service    | [r0.2.1](https://matrix.org/docs/spec/identity_service/r0.2.1) |
+> | Push Gateway        | [r0.1.0](https://matrix.org/docs/spec/push_gateway/r0.1.0)   |
 
 ## Concepts
 
