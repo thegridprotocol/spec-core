@@ -301,3 +301,30 @@ Example:
 #grid@example.org
 ```
 
+## APIs
+
+### Authorisation
+
+Access to endpoints **MAY** be restricted by the use of credentials from the client to the server.
+
+Clients and servers can adapt several requirement levels for exchange of such credentials.
+Four type of credential checks are available:
+
+- **MUST**: Using a valid token is mandatory; No choice.
+  - Clients **MUST** send credentials. If no credentials is available, the request **MUST NOT** be made.
+  - Servers **MUST NOT** let clients use the endpoint if not authorised.
+- **SHOULD**: Using a valid token is expected; Don't expect it to work without, but may work in specific cases.
+  - Clients **SHOULD** send credentials.
+  - Servers **SHOULD** deny the request unless they want to grant anonymous access to specific resources, in which case they **MUST** be able to restrict to the specific set of clients that the special behaviour is targeting.
+- **MAY**: Using a valid token is not needed but is encouraged; It's possible the server will return an enhanced response if the user is authenticated.
+  - Clients **SHOULD** send credentials.
+  - Servers **MUST** accept endpoint usage with or without credentials. Servers **SHOULD** enhance the request as much as possible if the client is identified and **SHOULD** redact as much info as possible if credentials are not available.
+- **MUST NOT**: Never send credentials. Ever.
+  - Clients **MUST NOT** send credentials.
+  - Servers **MUST** fast-fail the request if credentials are provided.
+
+> **TODO**: be clear of the distinction between "credentials (not) available", "client authenticated", "client authorized", etc.
+
+### Errors
+
+*TBC*

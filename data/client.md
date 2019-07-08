@@ -1,10 +1,24 @@
 # The Grid - Data - Client to Server APIs
 
-The [Fundamental Concepts](../concepts.md) are prerequisites to this document.
-
 **WARNING**: This document is Work in Progress. It assumes the reader has prior good knowledge of the Matrix C2S API on which this document is based, until all sections are filled. Some info is also left generic/incomplete and one should assume the Matrix endpoints are just ported as-is except for the API Baseline directives. In doubt, follow the Matrix spirit.
 
 **WARNING**: This API is currently very volatile and considered bleeding edge. Reviews and comments are welcome and encouraged as long as they keep in mind the purposeful lack of information on some topics/endpoints in the short-term.
+
+## Requirements
+
+### RFCs
+
+The following RFCs are prerequisites to this document:
+
+- [2119](https://tools.ietf.org/html/rfc2119)  - *Key words for use in RFCs to Indicate Requirement Levels*
+- [2606](https://tools.ietf.org/html/rfc2606) - *Reserved Top Level DNS Names*
+- [8174](https://tools.ietf.org/html/rfc8174) - *Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words*
+
+### Grid
+
+The following spec documents are prerequisites to this document:
+
+- [Fundamental Concepts](../concepts.md) 
 
 ## Overview
 
@@ -13,31 +27,6 @@ This document describes the API that can be used in the scope of data exchanges 
 ## Baseline
 
 All the endpoints **MUST** be prefixed with `/_grid/data/client`.
-
-### Authorization
-
-Access to endpoints **MAY** be restricted by the use of credentials from the client to the server.
-
-> **NOTE**: Until the Identity part of the spec has some concepts and ideas, this will remain undefined on purpose. A simple endpoint to use basic login and password login will be documented as non-normative for the time being.
-
-Clients and servers can adapt several requirement levels for exchange of such credentials. This document will outline four kind of behaviour:
-
-- (I am) **THE LAW**: Using a valid token is mandatory for use of the endpoint.
-  - Clients **MUST** send credentials. If no credentials is available, the request **MUST NOT** be made.
-  - Servers **MUST NOT** let clients use the endpoint if not authorized.
-- **DO IT**: Using a valid token is the default. Not doing so may divide by zero.
-  - Clients **SHOULD** send credentials.
-  - Servers **SHOULD** deny the request unless they want to grant anonymous access to specific resources, in which case they **MUST** be able to restrict to the specific set of clients that the special behaviour is targeting.
-- **SHINIES**: Using a valid token is encouraged as it can result in more complete information.
-  - Clients **SHOULD** send credentials.
-  - Servers **MUST** accept endpoint usage with or without credentials. Servers **SHOULD** enhance the request as much as possible if the client is identified and **SHOULD** redact as much info as possible if credentials are not available.
-- **BAD DOG** ~~Wolf~~: Clients **MUST NOT** send credentials. Servers **MUST** fast-fail the request if credentials are provided.
-
-> **TODO**: be clear of the distinction between "credentials (not) available", "client authenticated", "client authorized", etc.
-
-### Errors
-
-*TBC*
 
 ### Server discovery
 
@@ -77,7 +66,7 @@ Clients need to try to use them in order until one server reply. Caching of data
 
 ### `GET /versions`
 
-Credentials: **SHINIES**
+Credentials: **MAY**
 
 Get the support version of the API from the server.
 
@@ -102,7 +91,7 @@ Body:
 
 ### `GET /v0/`
 
-**Credentials**: **SHINIES**
+**Credentials**: **MAY**
 
 Check if the `v0` API is available. **MAY** act as a ping to the server.
 
@@ -116,56 +105,11 @@ Body:
 {}
 ```
 
-## Auth
+## Authorisation
 
-### `POST /v0/login`
+Access to endpoints **MAY** be restricted by the use of credentials from the client to the server.
 
-> **WARNING**: This is a placeholder endpoint until the Identity spec has its first draft.
-
-Perform login to get an access token.
-
-#### Request
-
-```json
-{
-    "type": "g.login-password",
-    "user": "myusername",
-    "password": "mypassword"
-}
-```
-
-#### Response
-
-If success:
-
-Status: `200`
-
-Body:
-
-```json
-{
-    "token": "abclfkskfrokfo43423"
-}
-```
-
-
-
-### `GET /v0/logout`
-
-> **WARNING**: This is a placeholder endpoint until the Identity spec has its first draft.
-
-Perform a logout for this session.
-
-#### Response
-
-If success:
-
-Status: `200`
-Body:
-
-```json
-{}
-```
+*TBC*
 
 ## Synchronization
 
