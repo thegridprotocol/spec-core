@@ -303,9 +303,138 @@ Example:
 
 ## APIs
 
-### Authorisation
+### Security
 
 Access to endpoints **MAY** be restricted by the use of credentials from the client to the server.
+
+#### Authentication
+
+Authentication in Client APIs is User-Interactive based. This model follows the [Matrix Client API r0.5.0 specification](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) (Sec 5.3) except for the following sections which are redefined in this specification:
+
+- The authentication types § 5.3.4, §§ 5.3.4.1-7
+- The fallback mechanism § 5.3.5
+- The identifier types § 5.3.6
+
+> **NOTE:** The mechanism will be documented in full in this specification by v0.1.0, while following our funding documents to base this protocol on Matrix.
+
+All endpoints allowing credentials are eligible for further, isolated User-Interactive authentication.
+
+##### Types
+
+Authentication in The Grid is fundamentally open and allows the use of custom types for specific uses with a fallback mechanism allowing their use regardless of client support.
+
+The protocol will define a set of most commonly used authentication methods and in which API they can be used when requiring specific flows.
+
+Servers **MUST** provide a fallback of type `g.fallback.web` for all and any Authentication types that can be requested.
+
+###### Password
+
+**Type:** `g.auth.password`
+**API:** Identity
+
+Matches Matrix § 5.3.4.1
+
+> **NOTE:** Will be fully documented in v0.1.0
+
+###### Token
+
+**Type:** `g.auth.token`
+**API:** *Any*
+
+Tokens are one-off opaque strings given to a user to allow a single use of the endpoint. Tokens **MUST** be invalidated after being used once.
+
+Typical uses include:
+
+- Invitation code allowing users to register on a server which does not allow public registrations.
+- Validate ownership of an Email or a Phone number.
+- Registration of an external service.
+
+The following response keys are available:
+
+| **Key** | **Mandatory** | **Purpose**                  |
+| ------- | ------------- | ---------------------------- |
+| `token` | **Yes**       | To be set to the token value |
+
+Example:
+
+```json
+{
+    "session": "RandomSessionID",
+    "type": "g.auth.token",
+    "token": "<Token to give to the server>"
+}
+```
+
+###### Signature
+
+**Type:** `g.auth.sign.ed25519`
+**API:** *Any*
+
+The following request parameters are available:
+
+| **Key** | **Type** | **Required** | Purpose                                                |
+| ------- | -------- | ------------ | ------------------------------------------------------ |
+| `key`   | String   | **Yes**      | The public key identifier that needs authentication.   |
+| `data`  | String   | **Yes**      | The data to sign to proof ownership of the public key. |
+
+The following response keys are available:
+
+| Key    | **Type** | **Required** | Purpose                                             |
+| ------ | -------- | ------------ | --------------------------------------------------- |
+| `sign` | String   | **Yes**      | The signature proving ownership of the private key. |
+
+
+
+##### Identifier Types
+
+The following official types are available:
+
+- `g.id.username`
+- `g.id.net.email`
+- `g.id.net.msisdn`
+
+All values must be given under the key `identifier.value` of the request object.
+
+Example:
+
+```json
+{
+    "session": "RandomSessionID",
+    "type": "g.auth.password",
+    "identifier": {
+        "type": "g.id.email"
+        "value": "john@example.org"
+    }
+}
+```
+
+##### Fallback
+
+The namespace `/auth/{authType}/fallback/{fallbackType}` is available to use under the base namespace of each API.
+
+Example for use on the Identity API for a simple password authentication in a browser:
+
+```
+GET /identity/client/v0/auth/g.auth.password/fallback/web?session=RandomSessionID&redirectUrl=http%3A%2F%2Flocalhost%3A65432%2Fauth%3Fsession%3DRandomSessionID
+```
+
+
+
+##### Fallback Types
+
+###### Web Browser
+
+**Type:** `g.fallback.web`
+**Usage:** To be displayed in a browser.
+
+The following query parameters are available:
+
+| **Key**       | **Required** | **Purpose**                                            |
+| ------------- | ------------ | ------------------------------------------------------ |
+| `session`     | **Yes**      | The session ID to complete the stage for               |
+| `redirectUrl` | **Yes**      | The URL to redirect the client used in the fallback to |
+
+#### Authorisation
 
 Clients and servers can adapt several requirement levels for exchange of such credentials.
 Four type of credential checks are available:

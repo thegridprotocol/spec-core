@@ -109,19 +109,15 @@ Body:
 
 ## Auth
 
-### `POST /v0/login`
+### `/v0/login`
+
+Credentials: **MUST NOT**
 
 Perform login to get an access token.
 
 #### Request
 
-```json
-{
-    "type": "g.login-password",
-    "user": "myusername",
-    "password": "mypassword"
-}
-```
+See [Concepts: API Authentication](../concepts.md#authentication).
 
 #### Response
 
@@ -140,6 +136,8 @@ Body:
 
 
 ### `GET /v0/logout`
+
+Credentials: **MUST**
 
 Perform a logout for this session.
 
