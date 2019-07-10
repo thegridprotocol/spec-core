@@ -6,21 +6,21 @@ The following RFCs are prerequisites to this document:
 - [2606](https://tools.ietf.org/html/rfc2606) - *Reserved Top Level DNS Names*
 - [8174](https://tools.ietf.org/html/rfc8174) - *Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words*
 
->  **NOTE**: This document is to be considered a diff of the Matrix 1.0 spec which this project forked. Anything not documented is to be taken from the Matrix specs with only naming adaptation.
->
-> The following versions of the APIs are used:
->
-> | **API**             | **Version**                                                  |
-> | ------------------- | ------------------------------------------------------------ |
-> | Client-Server       | [r0.5.0](https://matrix.org/docs/spec/client_server/r0.5.0)  |
-> | Server-Server       | [r0.1.2](https://matrix.org/docs/spec/server_server/r0.1.2)  |
-> | Application Service | [r0.1.1](https://matrix.org/docs/spec/application_service/r0.1.1) |
-> | Identity Service    | [r0.2.1](https://matrix.org/docs/spec/identity_service/r0.2.1) |
-> | Push Gateway        | [r0.1.0](https://matrix.org/docs/spec/push_gateway/r0.1.0)   |
+This document is to be considered a diff of the Matrix 1.0 spec which this project forked. Anything not documented is to be taken from the Matrix specs with naming adaptation to IDs, namespaces and types.
+
+The following versions of the APIs are used:
+
+| **API**             | **Version**                                                  |
+| ------------------- | ------------------------------------------------------------ |
+| Client-Server       | [r0.5.0](https://matrix.org/docs/spec/client_server/r0.5.0)  |
+| Server-Server       | [r0.1.2](https://matrix.org/docs/spec/server_server/r0.1.2)  |
+| Application Service | [r0.1.1](https://matrix.org/docs/spec/application_service/r0.1.1) |
+| Identity Service    | [r0.2.1](https://matrix.org/docs/spec/identity_service/r0.2.1) |
+| Push Gateway        | [r0.1.0](https://matrix.org/docs/spec/push_gateway/r0.1.0)   |
 
 ## Concepts
 
-### Fundamental
+### Roles
 
 The Grid protocol specifies *roles* that implementations can take and APIs linked to those roles. The current defined roles are:
 
@@ -258,19 +258,19 @@ For this version of the spec, Implementations **MUST** decode IDs in reverse to 
 
 #### Servers
 
-Sigil: `:`
+**Sigil:** `:`
 
 #### Users
 
-Sigil: `@`
+**Sigil:** `@`
 
 #### Channels
 
-Sigil: `#`
+**Sigil:** `#`
 
 #### Events
 
-Sigil: `$`
+**Sigil:** `$`
 
 ### Aliases
 
@@ -283,7 +283,7 @@ An `alias` is defined as a compound string made of four elements, in order:
 
 #### Users
 
-Sigil: `@`
+**Sigil:** `@`
 
 Example:
 
@@ -291,9 +291,9 @@ Example:
 @john@example.org
 ```
 
-#### Channel
+#### Channels
 
-Sigil: `#`
+**Sigil:** `#`
 
 Example:
 
@@ -309,11 +309,11 @@ Access to endpoints **MAY** be restricted by the use of credentials from the cli
 
 #### Authentication
 
-Authentication in Client APIs is User-Interactive based. This model follows the [Matrix Client API r0.5.0 specification](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) (Sec 5.3) except for the following sections which are redefined in this specification:
+Authentication in Client APIs is User-Interactive based. This model follows the [Matrix Client API r0.5.0 specification](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) §5.3 except for the following sections which are redefined in this specification:
 
-- The authentication types § 5.3.4, §§ 5.3.4.1-7
-- The fallback mechanism § 5.3.5
-- The identifier types § 5.3.6
+- The authentication types: §5.3.4, §§5.3.4.1-7
+- The fallback mechanism: §5.3.5
+- The identifier types: §5.3.6
 
 > **NOTE:** The mechanism will be documented in full in this specification by v0.1.0, while following our funding documents to base this protocol on Matrix.
 
@@ -415,7 +415,7 @@ The namespace `/auth/{authType}/fallback/{fallbackType}` is available to use und
 Example for use on the Identity API for a simple password authentication in a browser:
 
 ```
-GET /identity/client/v0/auth/g.auth.password/fallback/web?session=RandomSessionID&redirectUrl=http%3A%2F%2Flocalhost%3A65432%2Fauth%3Fsession%3DRandomSessionID
+GET /identity/client/v0/auth/g.auth.password/fallback/g.fallback.web?session=RandomSessionID&redirectUrl=http%3A%2F%2Flocalhost%3A65432%2Fauth%3Fsession%3DRandomSessionID
 ```
 
 
@@ -452,7 +452,7 @@ Four type of credential checks are available:
   - Clients **MUST NOT** send credentials.
   - Servers **MUST** fast-fail the request if credentials are provided.
 
-> **TODO**: be clear of the distinction between "credentials (not) available", "client authenticated", "client authorized", etc.
+> **TODO**: be clear of the distinction between "credentials (not) available", "client authenticated", "client authorised", etc.
 
 ### Errors
 
