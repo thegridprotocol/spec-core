@@ -1,8 +1,12 @@
-Unless explicitely stated in the content itself, in a LICENSE file in the same directory as the content file, or any parent directory,
+Except where otherwise noted, or found in a LICENSE file in the same directory as the content file, or any parent directory,
 all content is licensed under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+The license can also be found online at <https://creativecommons.org/licenses/by-sa/4.0/>.
 
-Attributation is either:
-- All copyright holders, each with a link to the copyright URL if provided, or if none their Github/Gitlab page applicable
+Attribution is either, in order of preference:
+- All copyright holders, each with a link to the copyright URL if provided, or if none their Github/Gitlab page applicable;
+- The content of the AUTHORS file, or inclusion of the AUTHORS file itself;
 - "Libre Monde ASBL and The Grid Protocol community" with a link to https://gridify.org/
 
-If not provided, the license can be found at https://creativecommons.org/licenses/by-sa/4.0/
+These documents are based on our knowledge and understanding of the Matrix protocol. We want to recognise the hard work of
+its community, without which this protocol could not be made possible. These documents are solely based on knowledge,
+and do no contain any content from the Matrix protocol specification materials.
