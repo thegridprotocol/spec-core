@@ -327,6 +327,19 @@ The protocol will define a set of most commonly used authentication methods and 
 
 Servers **MUST** provide a fallback of type `g.fallback.web` for all and any Authentication types that can be requested.
 
+Details about each type **MAY** be available under the following endpoint:
+
+```I
+GET /{baseAPI}/auth/type/{authType}/details
+```
+
+If details are available, a reponse with status `200` and a JSON object body will be sent.
+The following keys are available, all optional:
+
+| **Name**      | **Type** | **Purpose**                                                  |
+| ------------- | -------- | ------------------------------------------------------------ |
+| `displayName` | String   | Give a user-friendly name to a type, in case it needs to be displayed to the user - e.g. in case of prompting the user before redirecting to a fallback page. |
+
 ###### Password
 
 **Type:** `g.auth.password`
@@ -410,7 +423,7 @@ Example:
 
 ##### Fallback
 
-The namespace `/auth/{authType}/fallback/{fallbackType}` is available to use under the base namespace of each API.
+The namespace `/auth/type/{authType}/fallback/{fallbackType}` is available to use under the base namespace of each API.
 
 Example for use on the Identity API for a simple password authentication in a browser:
 
@@ -457,3 +470,6 @@ Four type of credential checks are available:
 ### Errors
 
 *TBC*
+
+---
+
