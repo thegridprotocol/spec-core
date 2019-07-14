@@ -186,3 +186,37 @@ Get information about a specific identifier.
 ### `GET /v0/identifier/{id}/server/`
 
 List data servers linked to the identifier.
+
+### `POST /v0/do/lookup/user/threepid`
+
+Lookup the ID of a user using a 3PID.
+
+#### Request
+
+Body:
+
+```json
+{
+    "identifier": {
+        "type": "g.id.net.grid.alias",
+        "value": "@john@example.org",
+    }
+}
+```
+
+#### Response
+
+##### Success
+
+**Status:** 200
+**Body:**
+
+```json
+{
+    "id": ":VGhpc0lzTWUsSm9obiE"
+}
+```
+
+##### Failure
+
+Not found: `404`  with a standard error body using `errcode` value of `G_NOT_FOUND`.

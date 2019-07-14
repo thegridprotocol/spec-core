@@ -35,7 +35,7 @@ Implementations are free to take on whichever approach they feel is appropriate 
 
 ### Realm
 
-A `realm` is the value under which [Identifiers](#identifiers) are namespaced. A `realm` is considered an opaque string unless specified otherwise.
+A `realm` is the value under which some [Identifiers](#identifiers) are namespaced. A `realm` is considered an opaque string unless specified otherwise.
 
 ### Events
 
@@ -152,7 +152,7 @@ While keeping this in mind, the following sections define the precises rules and
 
 > **Rationale**: We follow on the founding documents stating the first pieces of spec work should be based on the Matrix protocol.
 
-When exchanging data between implementations, if there is a possiblity to specify the MIME Type, Implementations **SHOULD NOT** append a charset like `; charset=utf-8` if the encoding is `UTF-8`.
+When exchanging data between implementations, if there is a possibility to specify the MIME Type, Implementations **SHOULD NOT** append a charset like `; charset=utf-8` if the encoding is `UTF-8`.
 
 >  **Rationale**: Keep it straight-forward for implementations.
 
@@ -166,7 +166,7 @@ When exchanging data between implementations, if there is a possiblity to specif
 >
 >  Promote `HTTP/2` now that it is a stable RFC to promote acceptance.
 >
->  `HTTP/3` is not a mature specification yet, and might burden implementations too much at this stage of the protocol if used as the default transport. However, once the specification matures to the point of being acceptable for wider use, implementations are encouraged to utilize it as the default transport, as soon as possible, with fallback to `HTTP/2` and `HTTP/1.1` as necessary.
+>  `HTTP/3` is not a mature specification yet, and might burden implementations too much at this stage of the protocol if used as the default transport. However, once the specification matures to the point of being acceptable for wider use, implementations are encouraged to utilise it as the default transport, as soon as possible, with fallback to `HTTP/2` and `HTTP/1.1` as necessary.
 >
 >  `HTTP/3`, `HTTP/2` and `HTTP/1.1` - in this order - allow for fallback, making it seamless to users. The fallback is normally largely adopted in libraries and SDKs, also making it seamless for developers.
 
@@ -192,9 +192,22 @@ Identifiers will be split into two categories:
 
 ### IDs
 
-An `ID` is defined as a compound string made of a single character in first position, called `sigil` followed by a globally unique network identifier. The generation algorithms are specific to each `ID` type.
+An `ID` is defined as a compound string made of a single character in first position, called `sigill` followed by an optional namespace and a base which, together, make up a globally unique network identifier. The generation algorithms are specific to each `ID` type.
 
-An `ID` **MUST** be treated as an opaque, case-sensitive string and used as-is unless a specific mechanism requires it to be interpreted. An `ID` is considered NOT human/users friendly and not to be used by them. They are to be used directly by software. Implementations of the protocol **SHOULD NOT** promote their usage by users outside of issue reporting, troubleshooting or advanced operations.
+Formally:
+
+```
+<sigill>[<namespace element>:[<namespace element>:[...]]]<base>
+```
+
+Examples of IDs:
+
+- Server:
+  - `:SGVyZUlzU29tZVJhbmRvbVN0cmluZ0ZvclNlcnZlcg`
+  - `:dns:ZXhhbXBsZS5vcmc`
+- User: `:VGhpc0lzTWUsTWFyaW8h`
+
+An `ID` **MUST** be treated as an opaque, case-sensitive string and used as-is unless a specific mechanism requires it to be interpreted. An `ID` is not considered human/users friendly and are not to be used by them. They are to be used directly by software. Implementations of the protocol **SHOULD NOT** promote their usage by users outside of issue reporting, troubleshooting or advanced operations.
 
 > **Open Question**: *Opaque* is not defined in a technical manner, and may be unclear and/or misleading.
 > **Is there a better word that states that implementations must not try to make sense of it, unless specifically stated in this doc?**
@@ -204,7 +217,7 @@ An `ID` **MUST** be treated as an opaque, case-sensitive string and used as-is u
 >
 > Making an `ID` opaque and case-sensitive allows for them to be treated as bytes without putting any kind of restriction for the future, while their companion Identifier, `aliases` deal with user-specific needs.
 
-Except for the `sigil` defining the ID type, characters **MUST** be from the [Base64](https://tools.ietf.org/html/rfc4648) encoding without padding and use the [URL-safe variant](https://tools.ietf.org/html/rfc4648#section-5).
+An `ID` **MAY** contain one or more strings delimited by the character `:` .  The right-most string is called the `base`, while the others are called the `namespace`. When building the `ID`, `base` **MUST** be the [Base64](https://tools.ietf.org/html/rfc4648) [URL-safe variant](https://tools.ietf.org/html/rfc4648#section-5) encoding without padding of the original value.
 
 > **Rationale**:
 >
@@ -217,73 +230,48 @@ Except for the `sigil` defining the ID type, characters **MUST** be from the [Ba
 >
 > *URL-safe variant*: avoid any mess in URLs with things like `/` and avoid implementations bugs that still treat `/` and other similar characters as special characters even after decoding.
 
-Example:
-
-```
-@fdsD-5_43
-```
-
-- `@` is the `sigil`.
-- `fdsD-5_43` is the globally unique network identifier.
-
-#### Ecosystem bootstrap
-
-To bootstrap the ecosystem, IDs **MUST** be built like this:
-
-1. Pick an arbitrary unique identifier for the object, unique within the configured realm.
-2. Append `@`
-3. Append the Grid realm
-4. Encode as Base64 URL-safe no-padding
-5. Add ID `sigil`
-
-Example:
-
-For the user `john` on the domain `example.org`:
-
-1. `john`
-2. `john@`
-3. `john@example.org`
-4. `am9obkBleGFtcGxlLm9yZwo`
-5. `@am9obkBleGFtcGxlLm9yZwo`
-
-For this version of the spec, Implementations **MUST** decode IDs in reverse to be able to route messages and initiate connections.
-
-> **Rationale**: While the protocol will tackle decentralised identifiers, identity and overall privacy-protecting measures, it is important to have a migration path from Matrix and current DNS systems to a new system.
->
-> This bootstrap measure allows to:
->
-> - Use currently existing environments/setups to bootstrap Grid
-> - Trivially hide things like DNS hostnames/domains in a way which is fully compatible with any future choice
-> - Pave the way to Identity mappings and features like account migration at virtually no extra cost, making all these fundamentally "built-in" as soon as the Identity part of the specification is produced.
-
 #### Servers
 
-**Sigil:** `:`
+**Sigill:** `:`
+
+##### Namespaces
+
+###### DNS Hostname
+
+**Under:** `dns:`
+
+This uses the `.well-known` resolution mechanism for the Server ID.
+
+###### URL
+
+**Under:** `url:`
+
+This gives a directly URL, including path, as a base URL when resolving the Server ID.
 
 #### Users
 
-**Sigil:** `@`
+**Sigill:** `@`
 
 #### Channels
 
-**Sigil:** `#`
+**Sigill:** `#`
 
 #### Events
 
-**Sigil:** `$`
+**Sigill:** `$`
 
 ### Aliases
 
 An `alias` is defined as a compound string made of four elements, in order:
 
-- A `sigil` to define the type of `alias`
+- A `sigill` to define the type of `alias`
 - A human-friendly identifier/name, unique within the [realm](#realm) it was created
 - The character `@` 
 - A Grid [realm](#realm)
 
 #### Users
 
-**Sigil:** `@`
+**Sigill:** `@`
 
 Example:
 
@@ -293,7 +281,7 @@ Example:
 
 #### Channels
 
-**Sigil:** `#`
+**Sigill:** `#`
 
 Example:
 
@@ -309,11 +297,11 @@ Access to endpoints **MAY** be restricted by the use of credentials from the cli
 
 #### Authentication
 
-Authentication in Client APIs is User-Interactive based. This model follows the [Matrix Client API r0.5.0 specification](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) §5.3 except for the following sections which are redefined in this specification:
+Authentication in Client APIs is User-Interactive based. This model follows the [Matrix Client API](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) [§5.3](https://matrix.org/docs/spec/client_server/r0.5.0#user-interactive-authentication-api) except for the following sections which are redefined in this specification:
 
-- The authentication types: §5.3.4, §§5.3.4.1-7
-- The fallback mechanism: §5.3.5
-- The identifier types: §5.3.6
+- The authentication types: [§5.3.4, §§5.3.4.1-7](https://matrix.org/docs/spec/client_server/r0.5.0#authentication-types)
+- The fallback mechanism: [§5.3.5](https://matrix.org/docs/spec/client_server/r0.5.0#fallback)
+- The identifier types: [§5.3.6](https://matrix.org/docs/spec/client_server/r0.5.0#identifier-types)
 
 > **NOTE:** The mechanism will be documented in full in this specification by v0.1.0, while following our funding documents to base this protocol on Matrix.
 
@@ -325,7 +313,7 @@ Authentication in The Grid is fundamentally open and allows the use of custom ty
 
 The protocol will define a set of most commonly used authentication methods and in which API they can be used when requiring specific flows.
 
-Servers **MUST** provide a fallback of type `g.fallback.web` for all and any Authentication types that can be requested.
+Servers **MUST** provide a fallback of type `g.auth.fallback.web` for all and any Authentication types that can be requested.
 
 Details about each type **MAY** be available under the following endpoint:
 
@@ -333,7 +321,7 @@ Details about each type **MAY** be available under the following endpoint:
 GET /{baseAPI}/auth/type/{authType}/details
 ```
 
-If details are available, a reponse with status `200` and a JSON object body will be sent.
+If details are available, a response with status `200` and a JSON object body will be sent.
 The following keys are available, all optional:
 
 | **Name**      | **Type** | **Purpose**                                                  |
@@ -342,16 +330,16 @@ The following keys are available, all optional:
 
 ###### Password
 
-**Type:** `g.auth.password`
+**Type:** `g.auth.id.password`
 **API:** Identity
 
-Matches Matrix § 5.3.4.1
+Matches Matrix [§5.3.4.1](https://matrix.org/docs/spec/client_server/r0.5.0#password-based).
 
 > **NOTE:** Will be fully documented in v0.1.0
 
 ###### Token
 
-**Type:** `g.auth.token`
+**Type:** `g.auth.id.token`
 **API:** *Any*
 
 Tokens are one-off opaque strings given to a user to allow a single use of the endpoint. Tokens **MUST** be invalidated after being used once.
@@ -373,7 +361,7 @@ Example:
 ```json
 {
     "session": "RandomSessionID",
-    "type": "g.auth.token",
+    "type": "g.auth.id.token",
     "token": "<Token to give to the server>"
 }
 ```
@@ -400,11 +388,29 @@ The following response keys are available:
 
 ##### Identifier Types
 
+All identifiers types use the namespace `g.id.`
+
+The following child namespaces are available:
+
+- `g.id.internal.`: Identifiers that are internal to a setup. They **MUST NOT** be used in the public federation. They **SHOULD NOT** be used outside of a single process/store.
+- `g.id.local.`: Identifiers which are local to the setup and **MUST NOT** be used in the public federation. They **MAY** be used in a private cluster.
+- `g.id.local.store.`
+- `g.id.net.`: Identifiers belonging to a public network, like Grid, Email, Matrix, Phone, XMPP, etc.
+
 The following official types are available:
 
+- `g.id.internal`
+- `g.id.store.ldap`
+- `g.id.store.ldap.open`
+- `g.id.store.ldap.ad`
+- `g.id.store.ldap.samba`
 - `g.id.username`
+- `g.id.net.grid`
+- `g.id.net.grid.alias`
+- `g.id.net.matrix`
 - `g.id.net.email`
-- `g.id.net.msisdn`
+- `g.id.net.phone.msisdn`
+- `g.id.net.xmpp`
 
 All values must be given under the key `identifier.value` of the request object.
 
@@ -415,7 +421,7 @@ Example:
     "session": "RandomSessionID",
     "type": "g.auth.password",
     "identifier": {
-        "type": "g.id.email"
+        "type": "g.id.net.email"
         "value": "john@example.org"
     }
 }
@@ -428,7 +434,7 @@ The namespace `/auth/type/{authType}/fallback/{fallbackType}` is available to us
 Example for use on the Identity API for a simple password authentication in a browser:
 
 ```
-GET /identity/client/v0/auth/g.auth.password/fallback/g.fallback.web?session=RandomSessionID&redirectUrl=http%3A%2F%2Flocalhost%3A65432%2Fauth%3Fsession%3DRandomSessionID
+GET /identity/client/v0/auth/g.auth.id.password/fallback/g.auth.fallback.web?session=RandomSessionID&redirectUrl=http%3A%2F%2Flocalhost%3A65432%2Fauth%3Fsession%3DRandomSessionID
 ```
 
 
@@ -437,7 +443,7 @@ GET /identity/client/v0/auth/g.auth.password/fallback/g.fallback.web?session=Ran
 
 ###### Web Browser
 
-**Type:** `g.fallback.web`
+**Type:** `g.auth.fallback.web`
 **Usage:** To be displayed in a browser.
 
 The following query parameters are available:
