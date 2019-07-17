@@ -26,7 +26,7 @@ This document describes the API that can be used in the scope of data exchanges 
 
 ## Baseline
 
-All the endpoints **MUST** be prefixed with `/_grid/data/client`.
+All the endpoints **MUST** be prefixed with `/data/client`.
 
 ### Server discovery
 
@@ -115,13 +115,15 @@ Access to endpoints **MAY** be restricted by the use of credentials from the cli
 
 ### `GET /v0/sync`
 
+Credentials: **SHOULD**
+
 *TBC - Assume like Matrix with naming changes*
 
 ## Channels
 
 ### `POST /v0/do/create/channel`
 
-Credentials: **DO IT**
+Credentials: **SHOULD**
 
 Create a new channel and return its ID.
 
@@ -151,7 +153,7 @@ Status 403 if creating a channel is not allowed
 
 ### `GET /v0/channels/{channelIdOrAddress}/timelines/events/`
 
-Credentials: **SHINNIES**
+Credentials: **MAY**
 
 Get the most recent N events in **Timeline order** in a simple client format. This can be used for peeking or to see the timeline without credentials.
 
@@ -201,11 +203,11 @@ Body:
 
 ### `POST /v0/channels/{channelIdOrAddress}/timelines/events/{txnId}`
 
-Credentials: **DO IT**
+Credentials: **SHOULD**
 
 Send an event to a room in timeline mode (do DAG linking on server-side).
 
-The `{txnId}` path parameter is used to deduplicate requests in case of network issues.
+The `{txnId}` path parameter is used to de-duplicate requests in case of network issues.
 
 #### Request
 

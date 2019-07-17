@@ -400,17 +400,18 @@ The following child namespaces are available:
 The following official types are available:
 
 - `g.id.internal`
+- `g.id.local.username`
 - `g.id.store.ldap`
-- `g.id.store.ldap.open`
 - `g.id.store.ldap.ad`
+- `g.id.store.ldap.open`
 - `g.id.store.ldap.samba`
-- `g.id.username`
+- `g.id.net.email`
 - `g.id.net.grid`
 - `g.id.net.grid.alias`
 - `g.id.net.matrix`
-- `g.id.net.email`
 - `g.id.net.phone.msisdn`
 - `g.id.net.xmpp`
+- `g.id.net.yggdrasil`
 
 All values must be given under the key `identifier.value` of the request object.
 
@@ -419,7 +420,7 @@ Example:
 ```json
 {
     "session": "RandomSessionID",
-    "type": "g.auth.password",
+    "type": "g.auth.id.password",
     "identifier": {
         "type": "g.id.net.email"
         "value": "john@example.org"
@@ -464,7 +465,7 @@ Four type of credential checks are available:
 - **SHOULD**: Using a valid token is expected; Don't expect it to work without, but may work in specific cases.
   - Clients **SHOULD** send credentials.
   - Servers **SHOULD** deny the request unless they want to grant anonymous access to specific resources, in which case they **MUST** be able to restrict to the specific set of clients that the special behaviour is targeting.
-- **MAY**: Using a valid token is not needed but is encouraged; It's possible the server will return an enhanced response if the user is authenticated.
+- **MAY**: Using a valid token is not needed but is encouraged; It's possible the server will return an enhanced response if the client is authenticated.
   - Clients **SHOULD** send credentials.
   - Servers **MUST** accept endpoint usage with or without credentials. Servers **SHOULD** enhance the request as much as possible if the client is identified and **SHOULD** redact as much info as possible if credentials are not available.
 - **MUST NOT**: Never send credentials. Ever.
