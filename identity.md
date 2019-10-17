@@ -1,4 +1,4 @@
-# The Grid - Identity - Client to Server API
+# The Grid - Identity API
 
 **WARNING**: This document is Work in Progress. Attempts at implementations are encouraged and will be supported. Reviews and comments are also welcome.
 
@@ -20,11 +20,11 @@ The following spec documents are prerequisites to this document:
 
 ## Overview
 
-This document describes the API that can be used in the scope of Identity exchanges between a client and a server.
+This document describes the API that can be used in the scope of Identity exchanges between a client and a server. Client and Server are roles, not implementations. A server implementation may be a client in the scope of an exchange with another server implementation.
 
 ## Baseline
 
-All the endpoints **MUST** be prefixed with `/identity/client`.
+All the endpoints **MUST** be prefixed with `/identity`.
 
 ### Authorization
 
@@ -36,7 +36,9 @@ All the endpoints **MUST** be prefixed with `/identity/client`.
 
 ### Server discovery
 
-Via `.well-known` at `/.well-known/grid/identity/client`
+#### For client implementations
+
+Via `.well-known` at `/.well-known/grid/identity`
 
 With format:
 
@@ -45,7 +47,7 @@ With format:
     "v": "0",
     "api": [
         {
-            "base_url": "https://example.org/_grid" # Top domain style
+            "base_url": "https://example.org/_grid/identity" # Top domain style
         }
         {
             "base_url": "https://grid.example.org" # Sub domain style
@@ -54,7 +56,7 @@ With format:
 }
 ```
 
-Top level keys define the entry.`
+Top level keys define the entry.
 
 `api` is an array of objects containing the following key(s):
 
@@ -63,6 +65,10 @@ Top level keys define the entry.`
 | `base_url` | Mandatory. Base URL to the API without trailing `/` |
 
 Clients need to try to use them in order until one server reply. Caching of data is controlled via regular HTTP headers, but should not be cached between client restarts.
+
+#### For Server implementations
+
+Using `SRV` DNS records with prefix `_grid._tcp.` Any TLS negotiation will use the hostname indicated as the target. Any Grid deployment **SHOULD** use DNSSEC. Servers implementations **MAY** refuse to communicate with insecure DNS setups at their own discretion.
 
 ## Status
 
@@ -132,8 +138,6 @@ Body:
     "token": "abclfkskfrokfo43423"
 }
 ```
-
-
 
 ### `GET /v0/logout`
 
